@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control: No comerme las uñas</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234caf50'/><text x='50%' y='68%' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif'>✨</text></svg>">
+    <style>
+        :root {
+            --primary: #4caf50;
+            --primary-dark: #388e3c;
+            --danger: #f44336;
+            --danger-dark: #d32f2f;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 26px;
+            color: #2c3e50;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .month-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .nav-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover { background-color: #e0e0e0; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .day-name {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 12px;
+            padding-bottom: 4px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .day:hover:not(.empty) {
+            transform: translateY(-2px);
+        }
+
+        .day.empty {
+            border: none;
+            background: transparent;
+            cursor: default;
+        }
+
+        .day.success {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+        }
+
+        .day.failed {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger-dark);
+            box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .report-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .stat-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 5px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 4px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-bar-container {
+            background-color: #e9ecef;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .streak-badge {
+            display: inline-block;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>💅 Control de Hábitos</h1>
+            <p class="subtitle">1 Clic: Cumplido (Verde) | 2 Clics: No cumplido (Rojo)</p>
+        </header>
+
+        <!-- Calendario -->
+        <div class="card">
+            <div class="month-header">
+                <button class="nav-btn" onclick="prevMonth()">&lt; Anterior</button>
+                <h2 id="monthTitle"></h2>
+                <button class="nav-btn" onclick="nextMonth()">Siguiente &gt;</button>
+            </div>
+
+            <div class="grid" id="calendar"></div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="dot" style="background: var(--primary);"></div> Cumplido</div>
+                <div class="legend-item"><div class="dot" style="background: var(--danger);"></div> No cumplido</div>
+                <div class="legend-item"><div class="dot" style="background: #fafafa; border: 1px solid #ddd;"></div> Pendiente</div>
+            </div>
+        </div>
+
+        <!-- Informe Mensual -->
+        <div class="card">
+            <div class="report-title">
+                <span>📊 Informe Mensual</span>
+                <span id="effectiveDaysText" style="font-size: 12px; font-weight: normal; color: var(--text-muted);"></span>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Cumplidos</div>
+                    <div class="stat-value" id="successCount" style="color: var(--primary-dark);">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Fallidos</div>
+                    <div class="stat-value" id="failedCount" style="color: var(--danger-dark);">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Efectividad</div>
+                    <div class="stat-value" id="percentage">0%</div>
+                </div>
+            </div>
+
+            <div class="streak-badge" id="streakBadge">
+                🔥 Racha actual: 0 días seguidos
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+        function getStorageKey(year, month) {
+            return `nail_tracker_v2_${year}_${month}`;
+        }
+
+        // Carga objeto { dayNumber: 'success' | 'failed' }
+        function loadSavedStatus(year, month) {
+            const data = localStorage.getItem(getStorageKey(year, month));
+            return data ? JSON.parse(data) : {};
+        }
+
+        function saveStatus(year, month, statusMap) {
+            localStorage.setItem(getStorageKey(year, month), JSON.stringify(statusMap));
+        }
+
+        function calculateStreak(year, month, statusMap) {
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+            
+            // Si es el mes actual, se evalúa empezando por ayer (día cerrado)
+            let checkDay = isCurrentMonth ? today.getDate() - 1 : new Date(year, month + 1, 0).getDate();
+            let streak = 0;
+
+            // Si se marcó hoy de forma anticipada, incluirlo
+            if (isCurrentMonth && statusMap[today.getDate()] === 'success') {
+                checkDay = today.getDate();
+            }
+
+            while (checkDay > 0) {
+                if (statusMap[checkDay] === 'success') {
+                    streak++;
+                    checkDay--;
+                } else if (statusMap[checkDay] === 'failed') {
+                    break;
+                } else {
+                    // Si hay un día pendiente en el pasado se interrumpe la racha continua
+                    checkDay--;
+                }
+            }
+
+            return streak;
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            document.getElementById('monthTitle').innerText = `${monthNames[month]} ${year}`;
+
+            const calendarEl = document.getElementById('calendar');
+            calendarEl.innerHTML = '';
+
+            dayNames.forEach(day => {
+                const el = document.createElement('div');
+                el.className = 'day-name';
+                el.innerText = day;
+                calendarEl.appendChild(el);
+            });
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            let statusMap = loadSavedStatus(year, month);
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day empty';
+                calendarEl.appendChild(empty);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day';
+                dayEl.innerText = day;
+
+                if (statusMap[day] === 'success') {
+                    dayEl.classList.add('success');
+                } else if (statusMap[day] === 'failed') {
+                    dayEl.classList.add('failed');
+                }
+
+                dayEl.onclick = () => {
+                    // Clic Cíclico: Pendiente -> Success -> Failed -> Pendiente
+                    if (!statusMap[day]) {
+                        statusMap[day] = 'success';
+                        dayEl.classList.add('success');
+                    } else if (statusMap[day] === 'success') {
+                        statusMap[day] = 'failed';
+                        dayEl.classList.remove('success');
+                        dayEl.classList.add('failed');
+                    } else {
+                        delete statusMap[day];
+                        dayEl.classList.remove('failed');
+                    }
+
+                    saveStatus(year, month, statusMap);
+                    updateReport(year, month, statusMap, totalDays);
+                };
+
+                calendarEl.appendChild(dayEl);
+            }
+
+            updateReport(year, month, statusMap, totalDays);
+        }
+
+        function updateReport(year, month, statusMap, totalDays) {
+            const successCount = Object.values(statusMap).filter(v => v === 'success').length;
+            const failedCount = Object.values(statusMap).filter(v => v === 'failed').length;
+            const totalEvaluated = successCount + failedCount;
+
+            // Porcentaje de efectividad basado únicamente en los días registrados
+            const percentage = totalEvaluated > 0 ? Math.round((successCount / totalEvaluated) * 100) : 0;
+            const streak = calculateStreak(year, month, statusMap);
+
+            document.getElementById('successCount').innerText = successCount;
+            document.getElementById('failedCount').innerText = failedCount;
+            document.getElementById('percentage').innerText = `${percentage}%`;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            document.getElementById('effectiveDaysText').innerText = `${totalEvaluated} de ${totalDays} días evaluados`;
+            
+            const streakBadge = document.getElementById('streakBadge');
+            if (streak > 0) {
+                streakBadge.innerText = `🔥 Racha activa: ${streak} ${streak === 1 ? 'día seguido' : 'días seguidos'}`;
+            } else {
+                streakBadge.innerText = `💪 Registra tus días para construir la racha`;
+            }
+        }
+
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        renderCalendar();
+    </script>
+</body>
+</html>
